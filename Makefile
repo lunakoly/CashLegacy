@@ -11,7 +11,3 @@ run: build
 
 test: build
 	cash < test.cash
-
-single:
-	g++ singlefile.cpp -o $(EXECUTABLE)
-	cash < test.cash
