@@ -42,8 +42,8 @@ public:
 		Converts inner temporary storage
 		to Arguments
 	*/
-	const Arguments & collect() {
-		Arguments * args = new Arguments(count);
+	const Arguments collect() {
+		Arguments args = Arguments(count);
 
 		auto it = temporary.begin();
 		int that = count - 1;
@@ -52,11 +52,11 @@ public:
 			it != temporary.end() &&
 			that >= 0
 		) {
-			(*args)[that] = std::move(*it);
+			args[that] = std::move(*it);
 			that--;
 			it++;
 		}
 
-		return *args;
+		return args;
 	}
 };

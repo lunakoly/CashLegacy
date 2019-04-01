@@ -15,7 +15,7 @@ And use them with `()`:
 echo User score: (SCORE)
 ```
 Cash uses brackets instead of quotes because it's simplier
-to declare nested things that way.  
+to declare nested things that way.
 To save contents **without** parsing it use `{}`:
 ```
 def TEXT {Lorem ipsum (dolor sit amet), consectetur}
@@ -35,6 +35,23 @@ def greet {
     echo Hello, ($1)!
 }
 greet (USER)
+```
+By default variables are substituted as solid blocks of text
+but if you wish, you may split the contents of a token into
+multiple arguments with `$`.
+Assuming:
+```
+def SOURCES {main.cpp other.cpp}
+```
+The two following lines are equivalent:
+```
+g++ (SOURCES) -o out
+g++ {main.cpp other.cpp} -o out
+```
+As well as these ones:
+```
+g++ $(SOURCES) -o out
+g++ main.cpp other.cpp -o out
 ```
 
 ## Builtin variables

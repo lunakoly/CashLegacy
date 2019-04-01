@@ -12,6 +12,11 @@ def getInfo {
 	echo Bye!
 }
 
+echo Simple Call:
+getInfo
+echo Get Body:
 echo \{(getInfo)\}
+echo Get Inline Body:
+echo $\{(getInfo)\}
+echo Show Result:
 echo <getInfo>
-exit
