@@ -38,7 +38,7 @@ greet (USER)
 ```
 Arguments are substituted as solid blocks of text
 but if you wish, you may use _alias_ operator `$` to substitute
-something before arguments splitting step.
+something before the arguments splitting step.
 Assuming:
 ```
 def SOURCES {main.cpp other.cpp}
@@ -53,7 +53,7 @@ As well as these ones:
 g++ $(SOURCES) -o out
 g++ main.cpp other.cpp -o out
 ```
-Operator `$` is applied to the next symbol. It's literaly
+Operator `$` is applied to the next symbol. It literaly
 disables grouping for the next substitution.
 ```
 echo The result of `test` in one line: --$<test>--
