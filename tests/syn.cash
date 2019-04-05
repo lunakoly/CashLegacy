@@ -1,10 +1,7 @@
 def user anonymous
-def cwd /hi/there
-def prompt {print [(user) (cwd) $ ]}
 
 echo Welcome to [The Test Script]!
 echo
-def cwd /main
 
 def getInfo {
 	echo Hi!

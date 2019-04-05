@@ -129,8 +129,11 @@ private:
 		) {
 			char next = input.get();
 
-			if (next == '\\')
+			if (next == '\\') {
+				output << next;
 				next = input.get();
+			}
+
 			else if (next == '{')
 				depth++;
 			else if (next == '}')
