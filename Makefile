@@ -1,5 +1,6 @@
 SOURCES=cash.cpp
-EXECUTABLE=cash.exe
+EXECUTABLE=bin/cash
+SYNTAX_TEST=tests/syn.cash
 
 all: run
 
@@ -7,7 +8,7 @@ build:
 	g++ $(SOURCES) -o $(EXECUTABLE)
 
 run: build
-	cash
+	$(EXECUTABLE)
 
 test: build
-	cash < test.cash
+	$(EXECUTABLE) < $(SYNTAX_TEST)

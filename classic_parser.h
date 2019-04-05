@@ -258,7 +258,7 @@ public:
 		// we can't check for `input.peek() != EOF`
 		// because it'll wait until user types anything
 		while (!state.shouldExit) {
-			std::stringstream prompt = std::stringstream(state["prompt"]);
+			std::stringstream prompt = std::stringstream("prompt");
 			parseAll(state, prompt, output);
 
 			if (input.peek() == EOF)
