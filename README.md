@@ -36,9 +36,9 @@ def greet {
 }
 greet (USER)
 ```
-By default variables are substituted as solid blocks of text
-but if you wish, you may split the contents of a token into
-multiple arguments with `$`.
+Arguments are substituted as solid blocks of text
+but if you wish, you may use _alias_ operator `$` to substitute
+something before arguments splitting step.
 Assuming:
 ```
 def SOURCES {main.cpp other.cpp}
@@ -52,6 +52,11 @@ As well as these ones:
 ```
 g++ $(SOURCES) -o out
 g++ main.cpp other.cpp -o out
+```
+Operator `$` is applied to the next symbol. It's literaly
+disables grouping for the next substitution.
+```
+echo The result of `test` in one line: --$<test>--
 ```
 
 ## Builtin variables

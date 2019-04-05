@@ -3,6 +3,7 @@
 #include "parser.h"
 
 #include <iostream>
+#include <stack>
 
 #include "arguments.h"
 #include "state.h"
@@ -27,6 +28,81 @@ private:
 	}
 
 	/**
+		Reads text & performs state changes
+	*/
+	void readSymbol(State & state, std::istream & input, std::ostream & output) {
+		char next = input.get();
+
+		if (next == '\\')
+			output << (char) input.get();
+		else if (next == '<')
+			readExecution(state, input, output);
+		else if (next == '{')
+			readRepresentation(input, output);
+		else if (next == '(')
+			readEvaluation(state, input, output);
+		else if (next == '[')
+			readGrouping(state, input, output);
+		else
+			output << next;
+	}
+
+	/**
+		Reads text & wrapps substitutions with `{}`
+	*/
+	void readUnescapedSymbol(State & state, std::istream & input, std::ostream & output) {
+		char next = input.get();
+
+		if (next == '\\')
+			output << '\\' << (char) input.get();
+
+		else if (next == '<') {
+			output << '{';
+			readExecution(state, input, output);
+			output << '}';
+		}
+
+		else if (next == '(') {
+			output << '{';
+			readEvaluation(state, input, output);
+			output << '}';
+		}
+
+		else if (next == '[') {
+			output << '{';
+			readGrouping(state, input, output);
+			output << '}';
+		}
+
+		else if (next == '{') {
+			output << '{';
+			readRepresentation(input, output);
+			output << '}';
+		}
+
+		else
+			output << next;
+	}
+
+
+	/**
+		Token is something that is wrapped
+		with blanks around.
+	*/
+	void readToken(
+		State & state,
+		std::istream & input,
+		std::ostream & output
+	) {
+		while (
+			input.peek() != EOF &&
+			input.peek() != '\t' &&
+			input.peek() != '\n' &&
+			input.peek() != ' '
+		) readSymbol(state, input, output);
+	}
+
+	/**
 		Keeps spaces inside and acts as a
 		solid parameter inside `<>`
 	*/
@@ -34,23 +110,7 @@ private:
 		while (
 			input.peek() != EOF &&
 			input.peek() != ']'
-		) {
-			char next = input.get();
-
-			if (next == '\\')
-				output << (char) input.get();
-			else if (next == '<')
-				readExecution(state, input, output);
-			else if (next == '(')
-				readEvaluation(state, input, output);
-			else if (next == '{')
-				readRepresentation(input, output);
-			else if (next == '[')
-				readGrouping(state, input, output);
-			else
-				output << next;
-		}
-
+		) readSymbol(state, input, output);
 		input.get();
 	}
 
@@ -106,80 +166,6 @@ private:
 	}
 
 	/**
-		Token is something that is wrapped
-		with blanks around.
-	*/
-	void readToken(State & state, std::istream & input, std::ostream & output) {
-		while (
-			input.peek() != EOF &&
-			input.peek() != '\t' &&
-			input.peek() != '\n' &&
-			input.peek() != ' '
-		) {
-			char next = input.get();
-
-			if (next == '\\')
-				output << (char) input.get();
-			else if (next == '{')
-				readRepresentation(input, output);
-			else
-				output << next;
-		}
-	}
-
-	/**
-		Token is something that is wrapped
-		with blanks around.
-		Keeps '\\'
-	*/
-	void readUnescapedToken(State & state, std::istream & input, std::ostream & output) {
-		while (
-			input.peek() != EOF &&
-			input.peek() != '\t' &&
-			input.peek() != '\n' &&
-			input.peek() != ' '
-		) {
-			char next = input.get();
-
-			if (next == '\\')
-				output << '\\' << (char) input.get();
-			else if (next == '{')
-				readRepresentation(input, output);
-			else
-				output << next;
-		}
-	}
-
-	/**
-		Token is something that is wrapped
-		with blanks around.
-		Keeps '{}'
-	*/
-	void readBracedToken(State & state, std::istream & input, std::ostream & output) {
-		while (
-			input.peek() != EOF &&
-			input.peek() != '\t' &&
-			input.peek() != '\n' &&
-			input.peek() != ' '
-		) {
-			char next = input.get();
-
-			if (next == '\\')
-				output << (char) input.get();
-
-			else if (next == '{') {
-				output << '{';
-				readRepresentation(input, output);
-				output << '}';
-			}
-
-			else
-				output << next;
-		}
-	}
-
-
-	/**
 		Splits input into the list of tokens.
 	*/
 	void readArguments(
@@ -194,35 +180,17 @@ private:
 			if (input.peek() == EOF)
 				break;
 
-			if (input.peek() == '$') {
-				input.get();
-
-				// keep `\\`
-				std::stringstream token;
-				readUnescapedToken(state, input, token);
-
-				// keep second `{}`
-				while (token.peek() != EOF) {
-					skipIndent(token);
-					std::stringstream subToken;
-					readBracedToken(state, token, subToken);
-					collector.add(subToken.str());
-				}
-			}
-
-			else {
-				std::stringstream token;
-				readToken(state, input, token);
-				collector.add(token.str());
-			}
+			std::stringstream token;
+			readToken(state, input, token);
+			collector.add(token.str());
 		}
+
+		input.get();
 	}
 
 	/**
-		Performs `()` and `<>` substitution and
-		wrapps up the result with `{}`. They'll be
-		removed at the argument parsing step.
-		They simplify unwrapping of `$` constructions
+		Performs preprocessing. Reads a part of input
+		that will be passed to arguments parsing step
 	*/
 	void readSubstitution(
 		State & state,
@@ -234,37 +202,12 @@ private:
 			input.peek() != EOF &&
 			input.peek() != terminator
 		) {
-			char next = input.get();
-
-			if (next == '\\')
-				output << next << (char) input.get();
-
-			else if (next == '<') {
-				output << '{';
-				readExecution(state, input, output);
-				output << '}';
+			if (input.peek() == '$') {
+				input.get();
+				readSymbol(state, input, output);
+			} else {
+				readUnescapedSymbol(state, input, output);
 			}
-
-			else if (next == '(') {
-				output << '{';
-				readEvaluation(state, input, output);
-				output << '}';
-			}
-
-			else if (next == '{') {
-				output << '{';
-				readRepresentation(input, output);
-				output << '}';
-			}
-
-			else if (next == '[') {
-				output << '{';
-				readGrouping(state, input, output);
-				output << '}';
-			}
-
-			else
-				output << next;
 		}
 
 		input.get();
@@ -274,11 +217,11 @@ private:
 		Substutes the result of another command
 	*/
 	void readExecution(State & state, std::istream & input, std::ostream & output) {
-		std::stringstream substitution;
-		readSubstitution(state, input, substitution, '>');
+		std::stringstream command;
+		readSubstitution(state, input, command, '>');
 
 		ArgumentsCollector collector;
-		readArguments(state, collector, substitution);
+		readArguments(state, collector, command);
 
 		processor->execute(state, collector.collect(), output);
 	}
@@ -291,11 +234,11 @@ public:
 		Evaluates one command
 	*/
 	virtual void parse(State & state, std::istream & input, std::ostream & output) {
-		std::stringstream substitution;
-		readSubstitution(state, input, substitution, '\n');
+		std::stringstream command;
+		readSubstitution(state, input, command, '\n');
 
 		ArgumentsCollector collector;
-		readArguments(state, collector, substitution);
+		readArguments(state, collector, command);
 
 		processor->execute(state, collector.collect(), output);
 	}

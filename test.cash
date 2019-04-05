@@ -17,6 +17,6 @@ getInfo
 echo Get Body:
 echo \{(getInfo)\}
 echo Get Inline Body:
-echo $\{(getInfo)\}
+echo \{$(getInfo)\}
 echo Show Result:
 echo <getInfo>
