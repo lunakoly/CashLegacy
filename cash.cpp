@@ -5,6 +5,7 @@
 #include "state.h"
 #include "classic_parser.h"
 #include "classic_processor.h"
+#include "platform.h"
 
 
 int main(int argc, char * argv[]) {
@@ -21,7 +22,10 @@ int main(int argc, char * argv[]) {
 	parser.processor = &processor;
 	processor.parser = &parser;
 
-	parser.interact(global, std::cin, std::cout);
+	if (Platform::isInteractive())
+		parser.interact(global, std::cin, std::cout);
+	else
+		parser.parseAll(global, std::cin, std::cout);
 
 	return 0;
 }

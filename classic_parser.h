@@ -22,6 +22,7 @@ private:
 	void skipIndent(std::istream & input) {
 		while (
 			input.peek() == '\n' ||
+			input.peek() == '\r' ||
 			input.peek() == '\t' ||
 			input.peek() == ' '
 		) input.get();
@@ -98,6 +99,7 @@ private:
 			input.peek() != EOF &&
 			input.peek() != '\t' &&
 			input.peek() != '\n' &&
+			input.peek() != '\r' &&
 			input.peek() != ' '
 		) readSymbol(state, input, output);
 	}
