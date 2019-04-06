@@ -64,7 +64,7 @@ echo The result of `test` in one line: --$<test>--
 to type the command. You can edit it like:
 ```
 def prompt {
-    echo (user) (cwd)
+    echo (USER) <cwd>
     print [=> ]
 }
 ```
@@ -74,3 +74,4 @@ def prompt {
 - `print` - Print text without appending newline character
 - `echo` - print and append '\n'
 - `exit` - you got it
+- `cwd` - prints the current working directory
