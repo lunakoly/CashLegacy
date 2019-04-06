@@ -5,7 +5,7 @@ echo
 
 def getInfo {
 	echo Hi!
-	echo {(user)} - [(user)] ; {(cwd)} - [(cwd)]
+	echo {(user)} - [(user)] ; {<cwd>} - [<cwd>]
 	echo Bye!
 }
 
@@ -16,4 +16,4 @@ echo \{(getInfo)\}
 echo Get Inline Body:
 echo \{$(getInfo)\}
 echo Show Result:
-echo <getInfo>
+echo $<getInfo>

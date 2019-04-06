@@ -13,8 +13,7 @@ int main(int argc, char * argv[]) {
 	std::ios::sync_with_stdio(false);
 
 	State global = State(std::unordered_map<std::string, std::string> {
-		{"prompt", "print [$ ]"},
-		{"cwd", Platform::getCurrentDirectory()}
+		{"prompt", "print [$ ]"}
 	});
 
 	ClassicParser parser;

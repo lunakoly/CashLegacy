@@ -4,6 +4,7 @@
 
 #include "arguments.h"
 #include "state.h"
+#include "platform.h"
 
 
 /**
@@ -44,7 +45,14 @@ struct Builtins {
 	/**
 		Termination current evaluation
 	*/
-	static void exit(State & state, const Arguments & args) {
+	static void exit(State & state) {
 		state.shouldExit = true;
+	}
+
+	/**
+		Prints the current directory
+	*/
+	static void cwd(std::ostream & output) {
+		output << Platform::getCurrentDirectory();
 	}
 };

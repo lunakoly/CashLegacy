@@ -31,13 +31,16 @@ struct ClassicProcessor : public Processor {
 				Builtins::define(state, args);
 
 			else if (*args[0] == "exit")
-				Builtins::exit(state, args);
+				Builtins::exit(state);
 
 			else if (*args[0] == "print")
 				Builtins::print(args, output);
 
 			else if (*args[0] == "echo")
 				Builtins::echo(args, output);
+
+			else if (*args[0] == "cwd")
+				Builtins::cwd(output);
 
 			else if (state.contains(*args[0])) {
 				std::stringstream value = std::stringstream(state[*args[0]]);
