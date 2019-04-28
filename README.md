@@ -72,8 +72,8 @@ def prompt {
 ## Builtin commands
 - `def` - Define variables
 - `print` - Print text without appending newline character
-- `echo` - print and append '\n'
-- `exit` - you got it
-- `pwd` - prints the working directory
-- `pun` - prints user name
-- `phn` - prints host name
+- `echo` - Print and append '\n'
+- `exit` - You got it
+- `pwd` - Print working directory
+- `pun` - Print user name
+- `phn` - Print host name
