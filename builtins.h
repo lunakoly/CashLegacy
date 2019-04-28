@@ -55,4 +55,18 @@ struct Builtins {
 	static void pwd(std::ostream & output) {
 		output << Platform::getCurrentDirectory();
 	}
+
+	/**
+		Prints user name
+	*/
+	static void pun(std::ostream & output) {
+		output << Platform::getUserName();
+	}
+
+	/**
+		Prints host name
+	*/
+	static void phn(std::ostream & output) {
+		output << Platform::getHostName();
+	}
 };

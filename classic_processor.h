@@ -42,6 +42,12 @@ struct ClassicProcessor : public Processor {
 			else if (*args[0] == "pwd")
 				Builtins::pwd(output);
 
+			else if (*args[0] == "pun")
+				Builtins::pun(output);
+
+			else if (*args[0] == "phn")
+				Builtins::phn(output);
+
 			else if (state.contains(*args[0])) {
 				std::stringstream value = std::stringstream(state[*args[0]]);
 				State inner = State({}, &state);

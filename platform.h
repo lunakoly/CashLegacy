@@ -2,24 +2,10 @@
 
 #include <string>
 
-// FILENAME_MAX
-#include <stdio.h>
-
-// UNIX
 #ifdef __unix__
-
-#include <unistd.h>
-#define ISATTY isatty
-#define GETCWD getcwd
-
-// WINDOWS
+#include "unix_native_platform.h"
 #else
-
-#include <io.h>
-#define ISATTY _isatty
-#include <direct.h>
-#define GETCWD _getcwd
-
+#include "windows_native_platform.h"
 #endif
 
 
@@ -33,15 +19,27 @@ struct Platform {
 		to an interactive input device (terminal)
 	*/
 	static bool isInteractive() {
-		return ISATTY(0);
+		return NativePlatform::isInteractive();
 	}
 
 	/**
 		Returns the current working directory path
 	*/
 	static std::string getCurrentDirectory() {
-		char buffer[FILENAME_MAX];
-		GETCWD(buffer, FILENAME_MAX);
-		return std::string(buffer);
+		return NativePlatform::getCurrentDirectory();
+	}
+
+	/**
+		Returns user name
+	*/
+	static std::string getUserName() {
+		return NativePlatform::getUserName();
+	}
+
+	/**
+		Returns host name
+	*/
+	static std::string getHostName() {
+		return NativePlatform::getHostName();
 	}
 };

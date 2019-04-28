@@ -22,11 +22,11 @@ def TEXT {Lorem ipsum (dolor sit amet), consectetur}
 ```
 To group text and parse inner substitutions user `[]`:
 ```
-echo [User name    :    (USER)]
+echo [User score    :    (SCORE)]
 ```
 To substitute another command result `<>` can be used:
 ```
-echo Result: <getInfo item>
+echo Current working directory: "<pwd>"
 ```
 If you need function-like behaviour,
 you can also execute variable value like this:
@@ -34,7 +34,7 @@ you can also execute variable value like this:
 def greet {
     echo Hello, ($1)!
 }
-greet (USER)
+greet <pun>
 ```
 Arguments are substituted as solid blocks of text
 but if you wish, you may use _alias_ operator `$` to substitute
@@ -64,7 +64,7 @@ echo The result of `test` in one line: --$<test>--
 to type the command. You can edit it like:
 ```
 def prompt {
-    echo (USER) in <pwd>
+    echo <pun> in <pwd>
     print [=> ]
 }
 ```
@@ -74,4 +74,6 @@ def prompt {
 - `print` - Print text without appending newline character
 - `echo` - print and append '\n'
 - `exit` - you got it
-- `pwd` - prints the current working directory
+- `pwd` - prints the working directory
+- `pun` - prints user name
+- `phn` - prints host name
