@@ -52,7 +52,7 @@ struct Builtins {
 	/**
 		Prints the current directory
 	*/
-	static void cwd(std::ostream & output) {
+	static void pwd(std::ostream & output) {
 		output << Platform::getCurrentDirectory();
 	}
 };

@@ -39,8 +39,8 @@ struct ClassicProcessor : public Processor {
 			else if (*args[0] == "echo")
 				Builtins::echo(args, output);
 
-			else if (*args[0] == "cwd")
-				Builtins::cwd(output);
+			else if (*args[0] == "pwd")
+				Builtins::pwd(output);
 
 			else if (state.contains(*args[0])) {
 				std::stringstream value = std::stringstream(state[*args[0]]);
