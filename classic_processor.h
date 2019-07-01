@@ -53,7 +53,7 @@ struct ClassicProcessor : public Processor {
 				State inner = State({}, &state);
 
 				for (auto it = 1; it < args.size(); it++)
-					inner.define("$" + std::to_string(it), *args[it]);
+					inner.define(std::to_string(it), *args[it]);
 
 				parser->parseAll(inner, value, output);
 			}

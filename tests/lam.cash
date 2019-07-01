@@ -1,0 +1,9 @@
+def PI 3.14159
+def E  2.71828
+
+def forEachConstant {
+	1 (PI)
+	1 (E)
+}
+
+forEachConstant { echo Called for (1) }
