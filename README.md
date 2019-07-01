@@ -83,7 +83,13 @@ g++ main.cpp other.cpp -o out
 Operator `$` is applied to the next symbol. It literaly
 disables grouping for the next substitution.
 ```
+def test {
+	echo A
+	echo B
+}
 echo The result of `test` in one line: --$<test>--
+--------------------------------------------------
+The result of `test` in one line: --A B --
 ```
 
 ## Builtin variables
