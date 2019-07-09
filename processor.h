@@ -1,9 +1,11 @@
 #pragma once
 
+#include <memory>
 #include <iostream>
 
 #include "arguments.h"
 #include "state.h"
+#include "value.h"
 
 
 /**
@@ -12,11 +14,13 @@
 	variable-functions
 */
 struct Processor {
+	~Processor() {}
+
 	/**
 		Executes builtin or function or
 		starts new process
 	*/
-	virtual void execute(
+	virtual std::shared_ptr<Value> execute(
 		State & state,
 		const Arguments & args,
 		std::ostream & output

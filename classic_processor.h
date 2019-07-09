@@ -2,11 +2,16 @@
 
 #include "processor.h"
 
+#include <memory>
+
 #include <iostream>
 #include <sstream>
 #include <string>
 
 #include "state.h"
+#include "value.h"
+#include "string_value.h"
+
 #include "arguments.h"
 #include "builtins.h"
 #include "parser.h"
@@ -21,46 +26,70 @@ struct ClassicProcessor : public Processor {
 	/**
 		Executes the given command
 	*/
-	virtual void execute(
+	virtual std::shared_ptr<Value> execute(
 		State & state,
 		const Arguments & args,
 		std::ostream & output
-	) {
+	) override {
 		if (args.size() > 0) {
-			if (*args[0] == "def")
+			std::stringstream result;
+			std::string command = args[0]->toString();
+
+			if (command == "def")
 				Builtins::define(state, args);
 
-			else if (*args[0] == "exit")
-				Builtins::exit(state);
+			else if (command == "set")
+				Builtins::set(state, args);
 
-			else if (*args[0] == "print")
-				Builtins::print(args, output);
+			else if (command == "exit")
+				Builtins::exit(state, args);
 
-			else if (*args[0] == "echo")
-				Builtins::echo(args, output);
+			else if (command == "print")
+				Builtins::print(args, result);
 
-			else if (*args[0] == "pwd")
-				Builtins::pwd(output);
+			else if (command == "echo")
+				Builtins::echo(args, result);
 
-			else if (*args[0] == "pun")
-				Builtins::pun(output);
+			else if (command == "typeOf")
+				Builtins::typeOf(args, result);
 
-			else if (*args[0] == "phn")
-				Builtins::phn(output);
+			else if (command == "int")
+				return Builtins::toInt(args);
 
-			else if (state.contains(*args[0])) {
-				std::stringstream value = std::stringstream(state[*args[0]]);
+			else if (command == "float")
+				return Builtins::toFloat(args);
+
+			else if (command == "pwd")
+				Builtins::pwd(result);
+
+			else if (command == "pun")
+				Builtins::pun(result);
+
+			else if (command == "phn")
+				Builtins::phn(result);
+
+			else if (command == "exec") {
+				std::shared_ptr<Value> contents = state.get(args[1]->toString());
+				std::stringstream value = std::stringstream(contents->toString());
 				State inner = State({}, &state);
 
-				for (auto it = 1; it < args.size(); it++)
-					inner.define(std::to_string(it), *args[it]);
+				for (auto it = 2; it < args.size(); it++)
+					inner.define("@" + std::to_string(it - 1), args[it]);
 
 				parser->parseAll(inner, value, output);
+				return inner.returnValue;
 			}
 
+			else if (state.contains(command))
+				return state.get(command);
+
 			else {
-				output << "Error > Command `" << *args[0] << "` not found\n";
+				output << "Error > Command `" << command << "` not found" << std::endl;
 			}
+
+			return std::make_shared<StringValue>(result.str());
 		}
+
+		return std::make_shared<StringValue>("");
 	}
 };

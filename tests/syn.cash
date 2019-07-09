@@ -5,15 +5,15 @@ echo
 
 def getInfo {
 	echo Hi!
-	echo {(USER)} - [(USER)] ; {<pwd>} - [<pwd>]
+	echo {(USER)} - [(USER)] ; {(pwd)} - [(pwd)]
 	echo Bye!
 }
 
 echo Simple Call:
-getInfo
+exec getInfo
 echo Get Body:
 echo \{(getInfo)\}
 echo Get Inline Body:
 echo \{$(getInfo)\}
 echo Show Result:
-echo $<getInfo>
+echo $(exec getInfo)

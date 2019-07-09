@@ -5,6 +5,8 @@
 	Provides basic parsing functionality
 */
 struct Parser {
+	~Parser() {}
+
 	/**
 		Evaluates one command
 	*/

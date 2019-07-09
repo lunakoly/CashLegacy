@@ -1,6 +1,6 @@
 def recursion {
 	echo aaaaa
-	recursion
+	exec recursion
 }
 
-recursion
+exec recursion

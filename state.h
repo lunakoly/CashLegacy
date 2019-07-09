@@ -1,7 +1,12 @@
 #pragma once
 
+#include <memory>
+
 #include <unordered_map>
 #include <string>
+
+#include "value.h"
+#include "string_value.h"
 
 
 /**
@@ -10,7 +15,7 @@
 */
 class State {
 private:
-	std::unordered_map<std::string, std::string> variables;
+	std::unordered_map<std::string, std::shared_ptr<Value>> variables;
 	State * parent;
 
 public:
@@ -20,23 +25,22 @@ public:
 	*/
 	bool shouldExit = false;
 
+	/**
+		Function return value.
+		Empty string by default
+	*/
+	std::shared_ptr<Value> returnValue = std::make_shared<StringValue>("");
+
 	State(
-		std::unordered_map<std::string, std::string> variables = {},
+		std::unordered_map<std::string, std::shared_ptr<Value>> variables = {},
 		State * parent = nullptr
 	) : variables(variables), parent(parent) {}
 
 	/**
-		Searches for the value recursively
+		Adds a local variable
 	*/
-	std::string & operator [] (const std::string & key) {
-		auto it = variables.find(key);
-
-		// ask parent scope if the requested
-		// was not found
-		if (it == variables.end() && parent != nullptr)
-			return (*parent)[key];
-
-		return variables[key];
+	void define(const std::string & key, const std::shared_ptr<Value> & value) {
+		variables[key] = value;
 	}
 
 	/**
@@ -44,6 +48,21 @@ public:
 	*/
 	void erase(const std::string & key) {
 		variables.erase(key);
+	}
+
+	/**
+		Tries to change the value of the
+		existing variable. Returns false on fail
+	*/
+	bool set(const std::string & key, const std::shared_ptr<Value> & value) {
+		auto it = variables.find(key);
+
+		if (it != variables.end()) {
+			it->second = value;
+			return true;
+		}
+
+		return false;
 	}
 
 	/**
@@ -60,9 +79,18 @@ public:
 	}
 
 	/**
-		Adds a local variable
+		Returns the variable value or an empty
+		string value
 	*/
-	void define(const std::string & key, std::string value) {
-		variables[key] = value;
+	std::shared_ptr<Value> get(const std::string & key) const {
+		auto it = variables.find(key);
+
+		if (it != variables.end())
+			return it->second;
+
+		if (parent != nullptr)
+			return parent->get(key);
+
+		return std::make_shared<StringValue>("");
 	}
 };

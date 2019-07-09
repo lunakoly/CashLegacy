@@ -1,8 +1,14 @@
+#include <memory>
+
 #include <iostream>
-#include <unordered_map>
 #include <string>
 
+#include <unordered_map>
+
 #include "state.h"
+#include "value.h"
+#include "string_value.h"
+
 #include "classic_parser.h"
 #include "classic_processor.h"
 #include "platform.h"
@@ -12,8 +18,8 @@ int main(int argc, char * argv[]) {
 	// speed up
 	std::ios::sync_with_stdio(false);
 
-	State global = State(std::unordered_map<std::string, std::string> {
-		{"prompt", "print [$ ]"}
+	State global = State(std::unordered_map<std::string, std::shared_ptr<Value>> {
+		{ "prompt", std::make_shared<StringValue>("print [$ ]") }
 	});
 
 	ClassicParser parser;

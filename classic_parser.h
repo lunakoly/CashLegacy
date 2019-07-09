@@ -2,11 +2,16 @@
 
 #include "parser.h"
 
+#include <memory>
+
 #include <iostream>
 #include <stack>
 
-#include "arguments.h"
 #include "state.h"
+#include "value.h"
+#include "string_value.h"
+
+#include "arguments.h"
 #include "processor.h"
 
 
@@ -31,88 +36,42 @@ private:
 	/**
 		Reads text & performs state changes
 	*/
-	void readSymbol(State & state, std::istream & input, std::ostream & output) {
+	void readSymbol(
+		State & state,
+		std::istream & input,
+		std::ostream & output,
+		std::ostream & screen
+	) {
 		char next = input.get();
 
 		if (next == '\\')
 			output << (char) input.get();
-		else if (next == '<')
-			readExecution(state, input, output);
 		else if (next == '{')
 			readRepresentation(input, output);
-		else if (next == '(')
-			readEvaluation(state, input, output);
 		else if (next == '[')
-			readGrouping(state, input, output);
-		else
-			output << next;
-	}
+			readGrouping(state, input, output, screen);
 
-	/**
-		Reads text & wrapps substitutions with `{}`
-	*/
-	void readUnescapedSymbol(State & state, std::istream & input, std::ostream & output) {
-		char next = input.get();
-
-		if (next == '\\')
-			output << '\\' << (char) input.get();
-
-		else if (next == '<') {
-			output << '{';
-			readExecution(state, input, output);
-			output << '}';
-		}
-
-		else if (next == '(') {
-			output << '{';
-			readEvaluation(state, input, output);
-			output << '}';
-		}
-
-		else if (next == '[') {
-			output << '{';
-			readGrouping(state, input, output);
-			output << '}';
-		}
-
-		else if (next == '{') {
-			output << '{';
-			readRepresentation(input, output);
-			output << '}';
-		}
+		else if (next == '(')
+			output << readExecution(state, input, screen)->toString();
 
 		else
 			output << next;
-	}
-
-
-	/**
-		Token is something that is wrapped
-		with blanks around.
-	*/
-	void readToken(
-		State & state,
-		std::istream & input,
-		std::ostream & output
-	) {
-		while (
-			input.peek() != EOF &&
-			input.peek() != '\t' &&
-			input.peek() != '\n' &&
-			input.peek() != '\r' &&
-			input.peek() != ' '
-		) readSymbol(state, input, output);
 	}
 
 	/**
 		Keeps spaces inside and acts as a
 		solid parameter inside `<>`
 	*/
-	void readGrouping(State & state, std::istream & input, std::ostream & output) {
+	void readGrouping(
+		State & state,
+		std::istream & input,
+		std::ostream & output,
+		std::ostream & screen
+	) {
 		while (
 			input.peek() != EOF &&
 			input.peek() != ']'
-		) readSymbol(state, input, output);
+		) readSymbol(state, input, output, screen);
 		input.get();
 	}
 
@@ -146,28 +105,41 @@ private:
 	}
 
 	/**
-		Substitutes variable value
+		Token is something that is wrapped
+		with blanks around.
 	*/
-	void readEvaluation(State & state, std::istream & input, std::ostream & output) {
-		std::stringstream sub;
+	std::shared_ptr<Value> readToken(
+		State & state,
+		std::istream & input,
+		std::ostream & output,
+		char terminator
+	) {
+		std::shared_ptr<Value> value;
 
-		while (
-			input.peek() != EOF &&
-			input.peek() != ')'
-		) {
-			char next = input.get();
-
-			if (next == '\\')
-				next = input.get();
-
-			sub << (char) next;
+		if (input.peek() == '(') {
+			input.get();
+			value = readExecution(state, input, output);
+		} else {
+			value = std::make_shared<StringValue>("");
 		}
 
-		input.get();
-		std::string name = sub.str();
+		std::stringstream token;
 
-		if (name.size() > 0)
-			output << state[name];
+		while (
+			input.peek() != terminator &&
+			input.peek() != EOF  &&
+			input.peek() != '\t' &&
+			input.peek() != '\n' &&
+			input.peek() != '\r' &&
+			input.peek() != ' '
+		) readSymbol(state, input, token, output);
+
+		std::string tokenString = token.str();
+
+		if (tokenString.length() > 0)
+			value = std::make_shared<StringValue>(value->toString() + tokenString);
+
+		return value;
 	}
 
 	/**
@@ -176,29 +148,6 @@ private:
 	void readArguments(
 		State & state,
 		ArgumentsCollector & collector,
-		std::istream & input
-	) {
-		while (input.peek() != EOF) {
-			skipIndent(input);
-
-			// trim trailing spaces
-			if (input.peek() == EOF)
-				break;
-
-			std::stringstream token;
-			readToken(state, input, token);
-			collector.add(token.str());
-		}
-
-		input.get();
-	}
-
-	/**
-		Performs preprocessing. Reads a part of input
-		that will be passed to arguments parsing step
-	*/
-	void readSubstitution(
-		State & state,
 		std::istream & input,
 		std::ostream & output,
 		char terminator
@@ -207,12 +156,16 @@ private:
 			input.peek() != EOF &&
 			input.peek() != terminator
 		) {
-			if (input.peek() == '$') {
-				input.get();
-				readSymbol(state, input, output);
-			} else {
-				readUnescapedSymbol(state, input, output);
-			}
+			skipIndent(input);
+
+			// trim trailing spaces
+			if (
+				input.peek() == EOF ||
+				input.peek() == terminator
+			) break;
+
+			std::shared_ptr<Value> token = readToken(state, input, output, terminator);
+			collector.add(token);
 		}
 
 		input.get();
@@ -221,16 +174,11 @@ private:
 	/**
 		Substutes the result of another command
 	*/
-	void readExecution(State & state, std::istream & input, std::ostream & output) {
-		std::stringstream command;
-		readSubstitution(state, input, command, '>');
-
+	std::shared_ptr<Value> readExecution(State & state, std::istream & input, std::ostream & output) {
 		ArgumentsCollector collector;
-		readArguments(state, collector, command);
-
-		processor->execute(state, collector.collect(), output);
+		readArguments(state, collector, input, output, ')');
+		return processor->execute(state, collector.collect(), output);
 	}
-
 
 public:
 	Processor * processor = nullptr;
@@ -238,20 +186,16 @@ public:
 	/**
 		Evaluates one command
 	*/
-	virtual void parse(State & state, std::istream & input, std::ostream & output) {
-		std::stringstream command;
-		readSubstitution(state, input, command, '\n');
-
+	virtual void parse(State & state, std::istream & input, std::ostream & output) override {
 		ArgumentsCollector collector;
-		readArguments(state, collector, command);
-
-		processor->execute(state, collector.collect(), output);
+		readArguments(state, collector, input, output, '\n');
+		output << processor->execute(state, collector.collect(), output)->toString();
 	}
 
 	/**
 		Evaluates everything until EOF
 	*/
-	virtual void parseAll(State & state, std::istream & input, std::ostream & output) {
+	virtual void parseAll(State & state, std::istream & input, std::ostream & output) override {
 		while (input.peek() != EOF && !state.shouldExit)
 			parse(state, input, output);
 	}
@@ -259,11 +203,11 @@ public:
 	/**
 		Interaction mode
 	*/
-	virtual void interact(State & state, std::istream & input, std::ostream & output) {
+	virtual void interact(State & state, std::istream & input, std::ostream & output) override {
 		// we can't check for `input.peek() != EOF`
 		// because it'll wait until user types anything
 		while (!state.shouldExit) {
-			std::stringstream prompt = std::stringstream("prompt");
+			std::stringstream prompt = std::stringstream("exec prompt");
 			parseAll(state, prompt, output);
 
 			if (input.peek() == EOF)

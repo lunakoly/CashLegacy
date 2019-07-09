@@ -8,33 +8,30 @@
 #include <forward_list>
 #include <vector>
 
-
-// When working with command/function arguments
-// they are read to stringstreams, converted
-// to strings and stored as unique_ptrs
+#include "value.h"
 
 
 /**
 	Shortcut for primary arguments storage type
 */
-using Arguments = std::vector<std::unique_ptr<std::string>>;
+using Arguments = std::vector<std::shared_ptr<Value>>;
 
 /**
 	Shortcut for temporary arguments storage.
-	Linked list is easier to fill
-	compared to vector
+	Initially arguments are stored inside of a
+	linked list and then moved into a vector
 */
 class ArgumentsCollector {
 private:
-	std::forward_list<std::unique_ptr<std::string>> temporary;
+	std::forward_list<std::shared_ptr<Value>> temporary;
 	size_t count = 0;
 
 public:
 	/**
 		Adds strings to inner temporary storage
 	*/
-	void add(std::string value) {
-		temporary.push_front(std::make_unique<std::string>(value));
+	void add(std::shared_ptr<Value> & value) {
+		temporary.push_front(value);
 		count++;
 	}
 
@@ -46,7 +43,7 @@ public:
 		Arguments args = Arguments(count);
 
 		auto it = temporary.begin();
-		int that = count - 1;
+		size_t that = count - 1;
 
 		while (
 			it != temporary.end() &&
