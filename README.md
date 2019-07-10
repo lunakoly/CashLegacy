@@ -124,3 +124,15 @@ def prompt {
 ### Numeric
 - `int` - Construct an integer from the first argument
 - `float` - Construct a float from the first argument
+
+## Recomended order to get accuainted with the code
+1. values
+1. arguments.h
+1. state.h
+1. platforms
+1. builtins
+1. processor.h
+1. parser.h
+1. cash.cpp
+1. classic_processor.h
+1. classic_parser.h
