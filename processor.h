@@ -3,9 +3,9 @@
 #include <memory>
 #include <iostream>
 
-#include "arguments.h"
 #include "state.h"
-#include "value.h"
+#include "arguments.h"
+#include "values/value.h"
 
 
 /**

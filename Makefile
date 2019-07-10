@@ -1,6 +1,6 @@
 SOURCES := cash.cpp
-EXECUTABLE := bin/cash
-SYNTAX_TEST := tests/syn.cash
+EXECUTABLE := _bin/cash
+SYNTAX_TEST := _tests/syn.cash
 
 ifeq ($(OS),Windows_NT)
 	EXECUTABLE := $(EXECUTABLE)_windows.exe

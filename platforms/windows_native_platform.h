@@ -18,19 +18,19 @@
 	Platform-specific implementation of functions
 	needed to be cross-platform
 */
-struct NativePlatform {
+namespace NativePlatform {
 	/**
 		Returns true if stdin is connected
 		to an interactive input device (terminal)
 	*/
-	static bool isInteractive() {
+	bool isInteractive() {
 		return _isatty(0);
 	}
 
 	/**
 		Returns the current working directory path
 	*/
-	static std::string getCurrentDirectory() {
+	std::string getCurrentDirectory() {
 		char buffer[FILENAME_MAX];
 		_getcwd(buffer, FILENAME_MAX);
 		return std::string(buffer);
@@ -39,7 +39,7 @@ struct NativePlatform {
 	/**
 		Returns user name
 	*/
-	static std::string getUserName() {
+	std::string getUserName() {
 		char buffer[UNLEN + 1];
 		DWORD length = UNLEN + 1;
 		GetUserName(buffer, &length);
@@ -49,7 +49,7 @@ struct NativePlatform {
 	/**
 		Returns host name
 	*/
-	static std::string getHostName() {
+	std::string getHostName() {
 		char buffer[UNLEN + 1];
 		DWORD length = UNLEN + 1;
 		GetComputerName(buffer, &length);

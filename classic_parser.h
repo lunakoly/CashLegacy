@@ -8,8 +8,8 @@
 #include <stack>
 
 #include "state.h"
-#include "value.h"
-#include "string_value.h"
+#include "values/value.h"
+#include "values/string_value.h"
 
 #include "arguments.h"
 #include "processor.h"
@@ -39,39 +39,38 @@ private:
 	void readSymbol(
 		State & state,
 		std::istream & input,
-		std::ostream & output,
-		std::ostream & screen
+		std::ostream & token,
+		std::ostream & output
 	) {
 		char next = input.get();
 
 		if (next == '\\')
-			output << (char) input.get();
+			token << (char) input.get();
 		else if (next == '{')
-			readRepresentation(input, output);
+			readRepresentation(input, token);
 		else if (next == '[')
-			readGrouping(state, input, output, screen);
+			readGrouping(state, input, token, output);
 
 		else if (next == '(')
-			output << readExecution(state, input, screen)->toString();
+			token << readExecution(state, input, output, ')')->toString();
 
 		else
-			output << next;
+			token << next;
 	}
 
 	/**
-		Keeps spaces inside and acts as a
-		solid parameter inside `<>`
+		Keeps spaces
 	*/
 	void readGrouping(
 		State & state,
 		std::istream & input,
-		std::ostream & output,
-		std::ostream & screen
+		std::ostream & token,
+		std::ostream & output
 	) {
 		while (
 			input.peek() != EOF &&
 			input.peek() != ']'
-		) readSymbol(state, input, output, screen);
+		) readSymbol(state, input, token, output);
 		input.get();
 	}
 
@@ -79,7 +78,7 @@ private:
 		Keeps it's content as it is but
 		checks for paired `{}` recursively
 	*/
-	void readRepresentation(std::istream & input, std::ostream & output) {
+	void readRepresentation(std::istream & input, std::ostream & token) {
 		int depth = 1;
 
 		while (
@@ -89,7 +88,7 @@ private:
 			char next = input.get();
 
 			if (next == '\\') {
-				output << next;
+				token << next;
 				next = input.get();
 			}
 
@@ -98,7 +97,7 @@ private:
 			else if (next == '}')
 				depth--;
 
-			output << (char) next;
+			token << (char) next;
 		}
 
 		input.get();
@@ -114,13 +113,11 @@ private:
 		std::ostream & output,
 		char terminator
 	) {
-		std::shared_ptr<Value> value;
+		std::shared_ptr<Value> value = std::make_shared<StringValue>("");
 
 		if (input.peek() == '(') {
 			input.get();
-			value = readExecution(state, input, output);
-		} else {
-			value = std::make_shared<StringValue>("");
+			value = readExecution(state, input, output, ')');
 		}
 
 		std::stringstream token;
@@ -137,7 +134,7 @@ private:
 		std::string tokenString = token.str();
 
 		if (tokenString.length() > 0)
-			value = std::make_shared<StringValue>(value->toString() + tokenString);
+			return std::make_shared<StringValue>(value->toString() + tokenString);
 
 		return value;
 	}
@@ -172,11 +169,18 @@ private:
 	}
 
 	/**
-		Substutes the result of another command
+		Reads a single command until EOF or
+		the terminator is met and returns the
+		result of it's evaluation
 	*/
-	std::shared_ptr<Value> readExecution(State & state, std::istream & input, std::ostream & output) {
+	std::shared_ptr<Value> readExecution(
+		State & state,
+		std::istream & input,
+		std::ostream & output,
+		char terminator
+	) {
 		ArgumentsCollector collector;
-		readArguments(state, collector, input, output, ')');
+		readArguments(state, collector, input, output, terminator);
 		return processor->execute(state, collector.collect(), output);
 	}
 
@@ -186,16 +190,22 @@ public:
 	/**
 		Evaluates one command
 	*/
-	virtual void parse(State & state, std::istream & input, std::ostream & output) override {
-		ArgumentsCollector collector;
-		readArguments(state, collector, input, output, '\n');
-		output << processor->execute(state, collector.collect(), output)->toString();
+	virtual void parse(
+		State & state,
+		std::istream & input,
+		std::ostream & output
+	) override {
+		output << readExecution(state, input, output, '\n')->toString();
 	}
 
 	/**
 		Evaluates everything until EOF
 	*/
-	virtual void parseAll(State & state, std::istream & input, std::ostream & output) override {
+	virtual void parseAll(
+		State & state,
+		std::istream & input,
+		std::ostream & output
+	) override {
 		while (input.peek() != EOF && !state.shouldExit)
 			parse(state, input, output);
 	}
@@ -203,12 +213,16 @@ public:
 	/**
 		Interaction mode
 	*/
-	virtual void interact(State & state, std::istream & input, std::ostream & output) override {
+	virtual void interact(
+		State & state,
+		std::istream & input,
+		std::ostream & output
+	) override {
 		// we can't check for `input.peek() != EOF`
 		// because it'll wait until user types anything
 		while (!state.shouldExit) {
 			std::stringstream prompt = std::stringstream("exec prompt");
-			parseAll(state, prompt, output);
+			parse(state, prompt, output);
 
 			if (input.peek() == EOF)
 				state.shouldExit = true;

@@ -13,6 +13,8 @@ echo Simple Call:
 exec getInfo
 echo Get Body:
 echo \{(getInfo)\}
+echo Escaping:
+echo \{\(getInfo)\}
 echo Get Inline Body:
 echo \{$(getInfo)\}
 echo Show Result:

@@ -5,8 +5,8 @@
 #include <unordered_map>
 #include <string>
 
-#include "value.h"
-#include "string_value.h"
+#include "values/value.h"
+#include "values/string_value.h"
 
 
 /**

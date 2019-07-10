@@ -9,12 +9,17 @@
 #include <string>
 
 #include "state.h"
-#include "value.h"
-#include "string_value.h"
+#include "values/value.h"
+#include "values/string_value.h"
 
 #include "arguments.h"
-#include "builtins.h"
 #include "parser.h"
+
+#include "builtins/general.h"
+#include "builtins/values.h"
+#include "builtins/display.h"
+#include "builtins/shorthands.h"
+#include "builtins/numeric.h"
 
 
 /**
@@ -36,7 +41,7 @@ struct ClassicProcessor : public Processor {
 			std::string command = args[0]->toString();
 
 			if (command == "def")
-				Builtins::define(state, args);
+				Builtins::def(state, args);
 
 			else if (command == "set")
 				Builtins::set(state, args);
@@ -50,8 +55,8 @@ struct ClassicProcessor : public Processor {
 			else if (command == "echo")
 				Builtins::echo(args, result);
 
-			else if (command == "typeOf")
-				Builtins::typeOf(args, result);
+			else if (command == "typeof")
+				Builtins::typeof(args, result);
 
 			else if (command == "int")
 				return Builtins::toInt(args);

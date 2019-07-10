@@ -13,33 +13,33 @@
 	Builds cross-platform layer for
 	some functionality
 */
-struct Platform {
+namespace Platform {
 	/**
 		Returns true if stdin is connected
 		to an interactive input device (terminal)
 	*/
-	static bool isInteractive() {
+	bool isInteractive() {
 		return NativePlatform::isInteractive();
 	}
 
 	/**
 		Returns the current working directory path
 	*/
-	static std::string getCurrentDirectory() {
+	std::string getCurrentDirectory() {
 		return NativePlatform::getCurrentDirectory();
 	}
 
 	/**
 		Returns user name
 	*/
-	static std::string getUserName() {
+	std::string getUserName() {
 		return NativePlatform::getUserName();
 	}
 
 	/**
 		Returns host name
 	*/
-	static std::string getHostName() {
+	std::string getHostName() {
 		return NativePlatform::getHostName();
 	}
 };

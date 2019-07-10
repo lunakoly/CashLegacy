@@ -6,12 +6,12 @@
 #include <unordered_map>
 
 #include "state.h"
-#include "value.h"
-#include "string_value.h"
+#include "values/value.h"
+#include "values/string_value.h"
 
 #include "classic_parser.h"
 #include "classic_processor.h"
-#include "platform.h"
+#include "platforms/platform.h"
 
 
 int main(int argc, char * argv[]) {
