@@ -28,6 +28,6 @@ namespace Builtins {
 	*/
 	void echo(const Arguments & args, std::ostream & output) {
 		print(args, output);
-		output << std::endl;
+		output << '\n';
 	}
 }

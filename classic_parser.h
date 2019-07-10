@@ -22,15 +22,21 @@ class ClassicParser : public Parser {
 private:
 	/**
 		Moves forward while the current symbol
-		is \t, space or \n
+		is blank or not the terminator
 	*/
-	void skipIndent(std::istream & input) {
+	bool hasSomething(std::istream & input, char terminator) {
 		while (
 			input.peek() == '\n' ||
 			input.peek() == '\r' ||
 			input.peek() == '\t' ||
 			input.peek() == ' '
-		) input.get();
+		) {
+			if (input.peek() == terminator)
+				return false;
+			input.get();
+		}
+
+		return input.peek() != EOF && input.peek() != terminator;
 	}
 
 	/**
@@ -149,18 +155,7 @@ private:
 		std::ostream & output,
 		char terminator
 	) {
-		while (
-			input.peek() != EOF &&
-			input.peek() != terminator
-		) {
-			skipIndent(input);
-
-			// trim trailing spaces
-			if (
-				input.peek() == EOF ||
-				input.peek() == terminator
-			) break;
-
+		while (hasSomething(input, terminator)) {
 			std::shared_ptr<Value> token = readToken(state, input, output, terminator);
 			collector.add(token);
 		}

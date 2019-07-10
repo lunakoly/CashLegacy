@@ -89,7 +89,7 @@ struct ClassicProcessor : public Processor {
 				return state.get(command);
 
 			else {
-				output << "Error > Command `" << command << "` not found" << std::endl;
+				output << "Error > Command `" << command << "` not found\n";
 			}
 
 			return std::make_shared<StringValue>(result.str());
