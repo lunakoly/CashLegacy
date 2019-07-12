@@ -29,12 +29,16 @@ echo [Current working directory:        "(pwd)"]
 ---------------------------------------------------
 Current working directory:        "/home/luna_koly"
 ```
+To stop Cash the command `exit` can be used and to evaluate a value as a command there is an `eval` command:
+```
+eval { echo Hello! }
+```
 
 ## Values
 When a command is parsed it isn't split into a list of strings but
 into a list of some abstract values. Probably by default they are
 string values but they don't have to. This allows Cash to make
-some values optimized for some tasks. These 'custom' values can be
+some values optimized for different tasks. These 'custom' values can be
 received from some of the builtin commands like `int`:
 it returns an integer value that is more suitable for calculations.
 To get the type of a value we can use `typeof` command:
@@ -55,29 +59,32 @@ Creating a variable or reassigning a value to an existing one can be done like t
 ```
 def NAME Nick
 ```
-To only reassign a value of already defined variable there is one more command:
-```
-set NAME Adam
-```
 When variable is defined it creates a command that returns the value:
 ```
 echo User Name: (NAME)
 ```
-Variable contents can be executed as functions (providing an inner scope of variable names) via `exec`.
-When this is done other arguments are bound as arguments starting from 1: `@1`, `@2`, ...
+Variable contents can be executed as functions via `eval` or `exec` commands.
+When this is done other command parameters are bound as arguments starting from 1: `@1`, `@2`, etc.
+Agruments are bound to a temporary created inner scope.  
+`eval` commands executes the value of it's first parameter so to run a function parentheses
+should be used to get it's value first. For the sake of readability there is the `exec` command that
+simply accepts the name of the variable:
 ```
 def greet {
     echo Hello, (@1)!
 }
 
+eval (greet) (pun)
 exec greet (pun)
 -----------------
 Hello, luna_koly!
+Hello, luna_koly!
 ```
-Since functions define their inner scope it now makes sence why there're both `def` and `set` commands.
-Using `def` inside a function allows to create a local variable and thus hides the name of the outer variable
-if trying to reassign it.
-To return a value from a function use `exit` command:
+Since functions define their inner scope it's unclear where exactly the `def` command should define a new variable.
+Using `def` inside a function creates a local variable and thus hides the name of the outer variable
+if trying to reassign it. That's why there is a `set` command that will only reassign an existing variable value
+if variable exists and does nothing otherwise.
+To return a value from a function use the sane `exit` command:
 ```
 def getSomeFloat {
     echo Preparing missiles...
@@ -106,11 +113,13 @@ def prompt {
 ## Builtin commands
 ### General
 - `exit` - Escapes the current scope and optionally provide some value other than the default empty string
+- `eval` - Evaluate a value as user input
 
 ### Values
 - `typeof` - Get the type of a value
 - `def` - Define variables
 - `set` - Reassign a value
+- `exec` - Execute a variable content as user input
 
 ### Display
 - `print` - Print text without appending newline character
@@ -127,7 +136,6 @@ def prompt {
 
 ## Recomended order to get accuainted with the code
 1. values
-1. arguments.h
 1. state.h
 1. platforms
 1. builtins
