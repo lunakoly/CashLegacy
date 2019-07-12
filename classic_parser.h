@@ -24,7 +24,11 @@ private:
 		Moves forward while the current symbol
 		is blank or not the terminator
 	*/
-	bool hasSomething(std::istream & input, char terminator) {
+	bool hasSomething(
+		ArgumentsCollector & collector,
+		std::istream & input,
+		char terminator
+	) {
 		while (
 			input.peek() == '\n' ||
 			input.peek() == '\r' ||
@@ -33,6 +37,7 @@ private:
 		) {
 			if (input.peek() == terminator)
 				return false;
+			collector.markSeam();
 			input.get();
 		}
 
@@ -56,10 +61,8 @@ private:
 			readRepresentation(input, token);
 		else if (next == '[')
 			readGrouping(state, input, token, output);
-
 		else if (next == '(')
 			token << readExecution(state, input, output, ')')->toString();
-
 		else
 			token << next;
 	}
@@ -119,13 +122,6 @@ private:
 		std::ostream & output,
 		char terminator
 	) {
-		std::shared_ptr<Value> value = std::make_shared<StringValue>("");
-
-		if (input.peek() == '(') {
-			input.get();
-			value = readExecution(state, input, output, ')');
-		}
-
 		std::stringstream token;
 
 		while (
@@ -137,12 +133,7 @@ private:
 			input.peek() != ' '
 		) readSymbol(state, input, token, output);
 
-		std::string tokenString = token.str();
-
-		if (tokenString.length() > 0)
-			return std::make_shared<StringValue>(value->toString() + tokenString);
-
-		return value;
+		return std::make_shared<StringValue>(token.str());
 	}
 
 	/**
@@ -155,9 +146,13 @@ private:
 		std::ostream & output,
 		char terminator
 	) {
-		while (hasSomething(input, terminator)) {
-			std::shared_ptr<Value> token = readToken(state, input, output, terminator);
-			collector.add(token);
+		while (hasSomething(collector, input, terminator)) {
+			if (input.peek() == '(') {
+				input.get();
+				collector.add(readExecution(state, input, output, ')'));
+			} else {
+				collector.add(readToken(state, input, output, terminator));
+			}
 		}
 
 		input.get();

@@ -2,6 +2,7 @@
 
 #include <memory>
 
+#include <iostream>
 #include <string>
 #include <sstream>
 
@@ -9,6 +10,7 @@
 #include <vector>
 
 #include "values/value.h"
+#include "values/string_value.h"
 
 
 /**
@@ -23,16 +25,37 @@ using Arguments = std::vector<std::shared_ptr<Value>>;
 */
 class ArgumentsCollector {
 private:
-	std::forward_list<std::shared_ptr<Value>> temporary;
-	size_t count = 0;
+	/**
+		Stores the value and the flag that determines
+		if there was a whitespace after it
+		so that this value should not
+		be clued together with the next one
+	*/
+	struct Node {
+		const std::shared_ptr<Value> value;
+		bool isSeam;
+	};
+
+	std::forward_list<Node> temporary;
+	Node * lastAddedNode = nullptr;
 
 public:
 	/**
 		Adds strings to inner temporary storage
 	*/
-	void add(std::shared_ptr<Value> & value) {
-		temporary.push_front(value);
-		count++;
+	void add(const std::shared_ptr<Value> & value) {
+		temporary.push_front({ value, false });
+		lastAddedNode = &(*(temporary.begin()));
+	}
+
+	/**
+		Defines a seam between values meaning
+		that the last added value should not be
+		clued with the next one being added
+	*/
+	void markSeam() {
+		if (lastAddedNode != nullptr)
+			lastAddedNode->isSeam = true;
 	}
 
 	/**
@@ -40,20 +63,44 @@ public:
 		to Arguments
 	*/
 	const Arguments collect() {
-		Arguments args = Arguments(count);
+		if (temporary.begin() == temporary.end())
+			return {};
+
+		std::forward_list<std::shared_ptr<Value>> merged;
+		size_t count = 0;
+
+		std::shared_ptr<Value> current;
+		bool isCurrentPresent = false;
 
 		auto it = temporary.begin();
-		size_t that = count - 1;
+		it->isSeam = false;
 
-		while (
-			it != temporary.end() &&
-			that >= 0
-		) {
-			args[that] = std::move(*it);
-			that--;
+		while (it != temporary.end()) {
+			if (it->isSeam) {
+				merged.push_front(current);
+				isCurrentPresent = false;
+				count++;
+			}
+
+			if (!isCurrentPresent) {
+				isCurrentPresent = true;
+				current = it->value;
+			} else {
+				current = std::make_shared<StringValue>(
+					it->value->toString() + current->toString()
+				);
+			}
+
 			it++;
 		}
 
+		if (isCurrentPresent) {
+			merged.push_front(current);
+			count++;
+		}
+
+		Arguments args = Arguments(count);
+		std::copy(merged.begin(), merged.end(), args.begin());
 		return args;
 	}
 };
