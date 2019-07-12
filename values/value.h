@@ -9,7 +9,7 @@
 	function results
 */
 struct Value {
-	~Value() {}
+	virtual ~Value() {}
 
 	/**
 		Because Cash is a command-line language

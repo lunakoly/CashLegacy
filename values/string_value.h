@@ -28,7 +28,7 @@ public:
 		Allows to find out the optimization type.
 		Added mostly for debugging
 	*/
-	virtual std::string getType() const override {
+	virtual std::string getType() const {
 		return "string";
 	}
 
