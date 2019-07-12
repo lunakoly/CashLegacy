@@ -5,13 +5,13 @@
 #include <memory>
 
 #include <iostream>
+#include <sstream>
 #include <stack>
 
 #include "state.h"
 #include "values/value.h"
 #include "values/string_value.h"
 
-#include "arguments.h"
 #include "processor.h"
 
 
@@ -56,10 +56,8 @@ private:
 			readRepresentation(input, token);
 		else if (next == '[')
 			readGrouping(state, input, token, output);
-
 		else if (next == '(')
 			token << readExecution(state, input, output, ')')->toString();
-
 		else
 			token << next;
 	}
@@ -150,16 +148,13 @@ private:
 	*/
 	void readArguments(
 		State & state,
-		ArgumentsCollector & collector,
+		Arguments & arguments,
 		std::istream & input,
 		std::ostream & output,
 		char terminator
 	) {
-		while (hasSomething(input, terminator)) {
-			std::shared_ptr<Value> token = readToken(state, input, output, terminator);
-			collector.add(token);
-		}
-
+		while (hasSomething(input, terminator))
+			arguments.push_back(readToken(state, input, output, terminator));
 		input.get();
 	}
 
@@ -174,9 +169,9 @@ private:
 		std::ostream & output,
 		char terminator
 	) {
-		ArgumentsCollector collector;
-		readArguments(state, collector, input, output, terminator);
-		return processor->execute(state, collector.collect(), output);
+		Arguments arguments;
+		readArguments(state, arguments, input, output, terminator);
+		return processor->execute(state, arguments, output);
 	}
 
 public:

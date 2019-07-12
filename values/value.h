@@ -1,6 +1,9 @@
 #pragma once
 
+#include <memory>
+
 #include <string>
+#include <vector>
 
 
 /**
@@ -29,3 +32,8 @@ struct Value {
 	*/
 	virtual void * extract() = 0;
 };
+
+/**
+	Shortcut for arguments list
+*/
+using Arguments = std::vector<std::shared_ptr<Value>>;

@@ -1,9 +1,0 @@
-def PI 3.14159
-def E  2.71828
-
-def forEachConstant {
-	exec @1 (PI)
-	exec @1 (E)
-}
-
-exec forEachConstant { echo Called for (@1) }
