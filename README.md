@@ -75,7 +75,7 @@ def greet {
 }
 
 eval (greet) (pun)
-exec greet (pun)
+exec  greet  (pun)
 -----------------
 Hello, luna_koly!
 Hello, luna_koly!
@@ -98,6 +98,27 @@ echo Return type = (typeof (exec getSomeFloat))
 Preparing missiles...
 Launching...
 Return type = float
+```
+Sometimes it's useful to store a number of command pre-known arguments inside one variable
+and substitute it's value into a command. This is one of the cases where `eval` command comes handy:
+```
+def SOURCES {a.cpp b.cpp c.cpp}
+eval [g++ (SOURCES) -o output]
+```
+Having different ways to get variable value and execute it allows to easily implement lambdas:
+```
+def PI 3.14159
+def E  2.71828
+
+def forEachConstant {
+	exec @1 (PI)
+	exec @1 (E)
+}
+
+exec forEachConstant { echo Called for (@1) }
+---------------------------------------------
+Called for 3.14159
+Called for 2.71828
 ```
 
 ## Builtin variables
