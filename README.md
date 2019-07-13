@@ -1,57 +1,57 @@
 # Cash
-Straightforward command line interpreter with simple syntax
+Cash is a command line language with straightforward syntax.
+
+## Values
+Cash command is a list of abstract values separated by whitespaces.
+These values may or may not represent a string internally.
+This allows Cash to optimize values for
+different tasks.
+
+Text enclosed in `{}` is treated as a single `code` value and is optimized for
+being executed as a function body.
+Text enclosed in `()` is treated as a substitution of another command and
+the result of another command may be any value. If there're any non-whitespace
+characters around `()` then the result of `()` will be treaded as `string` value and
+concatinated with the surrounding parts.
+Text that does not fit into the two upper rules is treated as `string` value.
+
+Cash can define additional value types (`integer`, `float`) but
+they should only be available via the corresponding commands (`int`, `float`).
+
+To get the type of a value the `typeof` command can be used:
+```
+echo Type is (typeof (int 100))
+-------------------------------
+Type is integer
+```
 
 ## Syntax
 The general command execution syntax is:
 ```
 command arg1 arg2 ...
 ```
-Command name and arguments are splited by whitespaces. 
-To define a text literal curly braces `{}` can be used.
-They preserve the text inside of them as it is:
+To define a text literal single quotes `''` can be used.
+They preserve the text inside as it is:
 ```
-echo {My name is:        Nick}
+echo 'My name is:        Nick'
 ------------------------------
 My name is:        Nick
 ```
-There is a command substitution syntax via parenthesis `()`:
+To substitute a command there are parentheses `()`:
 ```
-echo Current working directory: "(pwd)"
+echo Current working directory: (pwd)
 --------------------------------------------
-Current working directory: "/home/luna_koly"
+Current working directory: /home/luna_koly
 ```
-_Note that quotes do not affect parsing._  
-Text literation syntax `{}` also disables command substituion that may not
-be very handy sometimes. For this case there is a grouping syntax `[]`.
-Square brackets preserve whitespaces but also parse inner contents:
+Single quotes `''` disable command substitution that may not
+be very handy sometimes. For this case there is a grouping syntax `""`.
+Double quotes preserve whitespaces but allow substitution:
 ```
-echo [Current working directory:        "(pwd)"]
+echo "Current working directory:        (pwd)"
 ---------------------------------------------------
-Current working directory:        "/home/luna_koly"
+Current working directory:        /home/luna_koly
 ```
-To stop Cash the command `exit` can be used and to evaluate a value as a command there is an `eval` command:
-```
-eval { echo Hello! }
-```
-
-## Values
-When a command is parsed it isn't split into a list of strings but
-into a list of some abstract values. Probably by default they are
-string values but they don't have to. This allows Cash to make
-some values optimized for different tasks. These 'custom' values can be
-received from some of the builtin commands like `int`:
-it returns an integer value that is more suitable for calculations.
-To get the type of a value we can use `typeof` command:
-```
-echo Type is (typeof (int 100))
--------------------------------
-Type is integer
-```
-Builtin commands can accept and return values of different types.
-Right now the available type optimizations are:
-- `string`
-- `integer` (returned by `int` command)
-- `float` (returned by `float` command)
+To stop Cash the command `exit` can be used.
 
 ## Variables
 Cash supports binding values with some string names as variables.
@@ -65,7 +65,7 @@ echo User Name: (NAME)
 ```
 Variable contents can be executed as functions via `eval` or `exec` commands.
 When this is done other command parameters are bound as arguments starting from 1: `@1`, `@2`, etc.
-Agruments are bound to a temporary created inner scope.  
+Agruments are bound to a temporary created inner scope.
 `eval` commands executes the value of it's first parameter so to run a function parentheses
 should be used to get it's value first. For the sake of readability there is the `exec` command that
 simply accepts the name of the variable:
@@ -84,7 +84,7 @@ Since functions define their inner scope it's unclear where exactly the `def` co
 Using `def` inside a function creates a local variable and thus hides the name of the outer variable
 if trying to reassign it. That's why there is a `set` command that will only reassign an existing variable value
 if variable exists and does nothing otherwise.
-To return a value from a function use the sane `exit` command:
+To return a value from a function use the same `exit` command:
 ```
 def getSomeFloat {
     echo Preparing missiles...
@@ -102,8 +102,8 @@ Return type = float
 Sometimes it's useful to store a number of command pre-known arguments inside one variable
 and substitute it's value into a command. This is one of the cases where `eval` command comes handy:
 ```
-def SOURCES {a.cpp b.cpp c.cpp}
-eval [g++ (SOURCES) -o output]
+def SOURCES 'a.cpp b.cpp c.cpp'
+eval "g++ (SOURCES) -o output"
 ```
 Having different ways to get variable value and execute it allows to easily implement lambdas:
 ```
@@ -127,19 +127,19 @@ to type the command. You can edit it like:
 ```
 def prompt {
     echo (pun) in (pwd)
-    print {=> }
+    print '=> '
 }
 ```
 
 ## Builtin commands
 ### General
 - `exit` - Escapes the current scope and optionally provide some value other than the default empty string
-- `eval` - Evaluate a value as user input
 
 ### Values
 - `typeof` - Get the type of a value
 - `def` - Define variables
 - `set` - Reassign a value
+- `eval` - Evaluate a value as user input
 - `exec` - Execute a variable content as user input
 
 ### Display

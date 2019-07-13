@@ -6,23 +6,24 @@
 
 
 /**
-	A value that stores an float
+	A value that stores a string
 	internally and thus is designed
-	to be used as a float
+	to be used as a string
 */
-class FloatValue : public Value {
+class CodeValue : public Value {
 private:
-	float value;
+	std::string value;
 
 public:
-	FloatValue(float value) : value(value) {}
+	CodeValue(const std::string & value) : value(value) {}
+	CodeValue(std::string && value) : value(std::move(value)) {}
 
 	/**
 		Because Cash is a command-line language
 		any value must have a string representation
 	*/
 	virtual std::string toString() const override {
-		return std::to_string(value);
+		return '{' + value + '}';
 	}
 
 	/**
@@ -30,7 +31,7 @@ public:
 		Added mostly for debugging
 	*/
 	virtual std::string getType() const override {
-		return "float";
+		return "code";
 	}
 
 	/**

@@ -11,6 +11,7 @@
 #include "state.h"
 #include "values/value.h"
 #include "values/string_value.h"
+#include "values/code_value.h"
 
 #include "processor.h"
 
@@ -40,7 +41,7 @@ private:
 	}
 
 	/**
-		Reads text & performs state changes
+		Reads a part of a StringValue
 	*/
 	void readSymbol(
 		State & state,
@@ -52,10 +53,10 @@ private:
 
 		if (next == '\\')
 			token << (char) input.get();
-		else if (next == '{')
-			readRepresentation(input, token);
-		else if (next == '[')
+		else if (next == '\"')
 			readGrouping(state, input, token, output);
+		else if (next == '\'')
+			readLiteral(input, token);
 		else if (next == '(')
 			token << readExecution(state, input, output, ')')->toString();
 		else
@@ -63,7 +64,7 @@ private:
 	}
 
 	/**
-		Keeps spaces
+		Reads a part of a StringValue preserving whitespaces
 	*/
 	void readGrouping(
 		State & state,
@@ -73,16 +74,88 @@ private:
 	) {
 		while (
 			input.peek() != EOF &&
-			input.peek() != ']'
+			input.peek() != '\"'
 		) readSymbol(state, input, token, output);
 		input.get();
 	}
 
 	/**
-		Keeps it's content as it is but
-		checks for paired `{}` recursively
+		Reads a part of a StringValue preserving everything
 	*/
-	void readRepresentation(std::istream & input, std::ostream & token) {
+	void readLiteral(std::istream & input, std::ostream & token) {
+		while (
+			input.peek() != EOF &&
+			input.peek() != '\''
+		) {
+			char next = input.get();
+
+			if (next == '\\')
+				token << (char) input.get();
+			else
+				token << next;
+		}
+
+		input.get();
+	}
+
+	/**
+		Reads a single StringValue
+	*/
+	std::shared_ptr<StringValue> readString(
+		State & state,
+		std::istream & input,
+		std::ostream & output,
+		char terminator
+	) {
+		std::stringstream token;
+
+		while (
+			input.peek() != terminator &&
+			input.peek() != EOF  &&
+			input.peek() != '\t' &&
+			input.peek() != '\n' &&
+			input.peek() != '\r' &&
+			input.peek() != ' '
+		) readSymbol(state, input, token, output);
+
+		return std::make_shared<StringValue>(token.str());
+	}
+
+	/**
+		Tries to read a substitution and save it's Value
+		or returns a StringValue
+	*/
+	std::shared_ptr<Value> readStringOrSubstitution(
+		State & state,
+		std::istream & input,
+		std::ostream & output,
+		char terminator
+	) {
+		std::shared_ptr<Value> value = std::make_shared<StringValue>("");
+
+		if (input.peek() == '(') {
+			input.get();
+			value = readExecution(state, input, output, ')');
+
+			if (
+				input.peek() == terminator ||
+				input.peek() == '\t' ||
+				input.peek() == '\n' ||
+				input.peek() == '\r' ||
+				input.peek() == ' '
+			) return value;
+		}
+
+		return std::make_shared<StringValue>(
+			value->toString() + readString(state, input, output, terminator)->toString()
+		);
+	}
+
+	/**
+		Reads a single CodeValue
+	*/
+	std::shared_ptr<CodeValue> readCode(std::istream & input) {
+		std::stringstream token;
 		int depth = 1;
 
 		while (
@@ -105,42 +178,7 @@ private:
 		}
 
 		input.get();
-	}
-
-	/**
-		Token is something that is wrapped
-		with blanks around.
-	*/
-	std::shared_ptr<Value> readToken(
-		State & state,
-		std::istream & input,
-		std::ostream & output,
-		char terminator
-	) {
-		std::shared_ptr<Value> value = std::make_shared<StringValue>("");
-
-		if (input.peek() == '(') {
-			input.get();
-			value = readExecution(state, input, output, ')');
-		}
-
-		std::stringstream token;
-
-		while (
-			input.peek() != terminator &&
-			input.peek() != EOF  &&
-			input.peek() != '\t' &&
-			input.peek() != '\n' &&
-			input.peek() != '\r' &&
-			input.peek() != ' '
-		) readSymbol(state, input, token, output);
-
-		std::string tokenString = token.str();
-
-		if (tokenString.length() > 0)
-			return std::make_shared<StringValue>(value->toString() + tokenString);
-
-		return value;
+		return std::make_shared<CodeValue>(token.str());
 	}
 
 	/**
@@ -153,8 +191,15 @@ private:
 		std::ostream & output,
 		char terminator
 	) {
-		while (hasSomething(input, terminator))
-			arguments.push_back(readToken(state, input, output, terminator));
+		while (hasSomething(input, terminator)) {
+			if (input.peek() == '{') {
+				input.get();
+				arguments.push_back(readCode(input));
+			} else {
+				arguments.push_back(readStringOrSubstitution(state, input, output, terminator));
+			}
+		}
+
 		input.get();
 	}
 

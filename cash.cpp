@@ -19,7 +19,7 @@ int main(int argc, char * argv[]) {
 	std::ios::sync_with_stdio(false);
 
 	State global = State(std::unordered_map<std::string, std::shared_ptr<Value>> {
-		{ "prompt", std::make_shared<StringValue>("print [$ ]") }
+		{ "prompt", std::make_shared<StringValue>("print '$ '") }
 	});
 
 	ClassicParser parser;

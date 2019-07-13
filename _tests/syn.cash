@@ -1,50 +1,52 @@
-echo {echo {My name is:        Nick}}
+echo 'echo \'My name is:        Nick\''
 echo  ------------------------------
-echo {My name is:        Nick}
+echo 'My name is:        Nick'
 echo
 
-echo {Current working directory: "(pwd)"}
+echo 'Current working directory: (pwd)'
 echo  ----------------------------------
-echo Current working directory: "(pwd)"
+echo Current working directory: (pwd)
 echo
 
-echo {[Current working directory:        "(pwd)"]}
+echo '"Current working directory:        (pwd)"'
 echo  -------------------------------------------
-echo [Current working directory:        "(pwd)"]
+echo "Current working directory:        (pwd)"
 echo
 
-echo {Type is (typeof (int 100))}
+echo 'Type is (typeof (int 100))'
 echo  --------------------------
 echo Type is (typeof (int 100))
 echo
 
-echo {def NAME Nick}
-echo {set NAME Adam}
-echo {User Name: (NAME)}
+echo 'def NAME Nick'
+echo 'set NAME Adam'
+echo 'echo User Name: (NAME)'
 echo  -----------------
 def NAME Nick
 set NAME Adam
 echo User Name: (NAME)
 echo
 
-echo {def greet {
+echo 'def greet {
     echo Hello, (@1)!
-}}
-echo {exec greet (pun)}
+}'
+echo 'eval (greet) (pun)'
+echo 'exec greet (pun)'
 echo  ----------------
 def greet {
     echo Hello, (@1)!
 }
+eval (greet) (pun)
 exec greet (pun)
 echo
 
-echo {def getSomeFloat {
+echo 'def getSomeFloat {
     echo Preparing missiles...
     echo Launching...
     exit (float 3.1415)
     echo THIS IS NOT EXECUTED
-}}
-echo {echo Return type = (typeof (exec getSomeFloat))}
+}'
+echo 'echo Return type = (typeof (exec getSomeFloat))'
 echo  -----------------------------------------------
 def getSomeFloat {
     echo Preparing missiles...
@@ -55,20 +57,20 @@ def getSomeFloat {
 echo Return type = (typeof (exec getSomeFloat))
 echo
 
-echo {def UNWRAP_WORDS {These    will   be  unwrapped}}
-echo {eval [echo Unwrapped: (UNWRAP_WORDS)]}
+echo 'def UNWRAP_WORDS \'These    will   be  unwrapped\''
+echo 'eval "echo Unwrapped: (UNWRAP_WORDS)"'
 echo  -------------------------------------
-def UNWRAP_WORDS {These    will   be  unwrapped}
-eval [echo Unwrapped: (UNWRAP_WORDS)]
+def UNWRAP_WORDS 'These    will   be  unwrapped'
+eval "echo Unwrapped: (UNWRAP_WORDS)"
 echo
 
-echo {def PI 3.14159}
-echo {def E  2.71828}
-echo {def forEachConstant {
+echo 'def PI 3.14159'
+echo 'def E  2.71828'
+echo 'def forEachConstant {
 	exec @1 (PI)
 	exec @1 (E)
-}}
-echo {exec forEachConstant { echo Called for (@1) }}
+}'
+echo 'exec forEachConstant { echo Called for (@1) }'
 echo  ---------------------------------------------
 def PI 3.14159
 def E  2.71828

@@ -4,6 +4,7 @@
 
 #include "../state.h"
 #include "../values/value.h"
+#include "../values/string_value.h"
 
 #include "../parser.h"
 
@@ -37,6 +38,37 @@ namespace Builtins {
 	}
 
 	/**
+		Evaluates the first agrument and binds
+		the following ones as its own arguments
+	*/
+	std::shared_ptr<Value> eval(
+		State & state,
+		const Arguments & args,
+		Parser & parser,
+		std::ostream & output
+	) {
+		if (args.size() >= 2) {
+			std::string contents("");
+
+			if (args[1]->getType() == "code")
+				contents = *((std::string *) args[1]->extract());
+			else
+				contents = args[1]->toString();
+
+			auto input = std::stringstream(contents);
+			State inner = State({}, &state);
+
+			for (auto it = 2; it < args.size(); it++)
+				inner.define("@" + std::to_string(it - 1), args[it]);
+
+			parser.parseAll(inner, input, output);
+			return inner.returnValue;
+		}
+
+		return std::make_shared<StringValue>("");
+	}
+
+	/**
 		Evaluates the value of the first agrument and binds
 		the following ones as its own arguments
 	*/
@@ -46,14 +78,25 @@ namespace Builtins {
 		Parser & parser,
 		std::ostream & output
 	) {
-		auto contents = state.get(args[1]->toString());
-		auto value = std::stringstream(contents->toString());
-		State inner = State({}, &state);
+		if (args.size() >= 2) {
+			auto target = state.get(args[1]->toString());
+			std::string contents("");
 
-		for (auto it = 2; it < args.size(); it++)
-			inner.define("@" + std::to_string(it - 1), args[it]);
+			if (target->getType() == "code")
+				contents = *((std::string *) target->extract());
+			else
+				contents = target->toString();
 
-		parser.parseAll(inner, value, output);
-		return inner.returnValue;
+			auto input = std::stringstream(contents);
+			State inner = State({}, &state);
+
+			for (auto it = 2; it < args.size(); it++)
+				inner.define("@" + std::to_string(it - 1), args[it]);
+
+			parser.parseAll(inner, input, output);
+			return inner.returnValue;
+		}
+
+		return std::make_shared<StringValue>("");
 	}
 }
