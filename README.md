@@ -244,9 +244,9 @@ Cash interpreter provides a bunch of built-in commands. Some of them are closely
 ### General
 - `typeof` - Get the type of a value
 - `exit` - Escape the current scope and optionally provide return value
+- `eval` - Evaluate a string representation of a value as a command
 - `def` - Define variables
 - `set` - Re-assign a value to a variable
-- `eval` - Evaluate a string representation of a value as a command
 - `exec` - Execute a code value assigned to a variable
 
 ### Display

@@ -30,14 +30,14 @@ echo
 echo 'def greet {
     echo Hello, (@1)!
 }'
-echo 'eval (greet) (pun)'
-echo 'exec greet (pun)'
+echo 'eval (greet) (username)'
+echo 'exec greet (username)'
 echo  ----------------
 def greet {
     echo Hello, (@1)!
 }
-eval (greet) (pun)
-exec greet (pun)
+eval (greet) (username)
+exec greet (username)
 echo
 
 echo 'def getSomeFloat {

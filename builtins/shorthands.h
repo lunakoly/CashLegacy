@@ -20,14 +20,14 @@ namespace Builtins {
 	/**
 		Prints user name
 	*/
-	void pun(std::ostream & output) {
+	void username(std::ostream & output) {
 		output << Platform::getUserName();
 	}
 
 	/**
 		Prints host name
 	*/
-	void phn(std::ostream & output) {
+	void hostname(std::ostream & output) {
 		output << Platform::getHostName();
 	}
 }

@@ -40,14 +40,14 @@ struct ClassicProcessor : public Processor {
 		if (args.size() > 0) {
 			std::string command = args[0]->toString();
 
-			if (command == "exit")
+			if (command == "typeof")
+				Builtins::typeof(args, result);
+
+			else if (command == "exit")
 				Builtins::exit(state, args);
 
 			else if (command == "eval")
 				Builtins::eval(state, args, *parser, output);
-
-			else if (command == "typeof")
-				Builtins::typeof(args, result);
 
 			else if (command == "def")
 				Builtins::def(state, args);
@@ -67,11 +67,11 @@ struct ClassicProcessor : public Processor {
 			else if (command == "pwd")
 				Builtins::pwd(result);
 
-			else if (command == "pun")
-				Builtins::pun(result);
+			else if (command == "username")
+				Builtins::username(result);
 
-			else if (command == "phn")
-				Builtins::phn(result);
+			else if (command == "hostname")
+				Builtins::hostname(result);
 
 			else if (command == "int")
 				return Builtins::toInt(args);
