@@ -5,6 +5,7 @@
 #include "../state.h"
 #include "../values/value.h"
 #include "../values/string_value.h"
+#include "../values/int_value.h"
 
 #include "../parser.h"
 
@@ -38,34 +39,19 @@ namespace Builtins {
 	}
 
 	/**
-		Evaluates the first agrument and binds
-		the following ones as its own arguments
+		Evaluates the first agrument
 	*/
-	std::shared_ptr<Value> eval(
+	void eval(
 		State & state,
 		const Arguments & args,
 		Parser & parser,
 		std::ostream & output
 	) {
 		if (args.size() >= 2) {
-			std::string contents("");
-
-			if (args[1]->getType() == "code")
-				contents = *((std::string *) args[1]->extract());
-			else
-				contents = args[1]->toString();
-
+			std::string contents = args[1]->toString();
 			auto input = std::stringstream(contents);
-			State inner = State({}, &state);
-
-			for (auto it = 2; it < args.size(); it++)
-				inner.define("@" + std::to_string(it - 1), args[it]);
-
-			parser.parseAll(inner, input, output);
-			return inner.returnValue;
+			parser.parseAll(state, input, output);
 		}
-
-		return std::make_shared<StringValue>("");
 	}
 
 	/**
@@ -93,6 +79,7 @@ namespace Builtins {
 			for (auto it = 2; it < args.size(); it++)
 				inner.define("@" + std::to_string(it - 1), args[it]);
 
+			inner.define("@COUNT", std::make_shared<IntValue>(args.size() - 2));
 			parser.parseAll(inner, input, output);
 			return inner.returnValue;
 		}

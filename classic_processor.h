@@ -44,7 +44,7 @@ struct ClassicProcessor : public Processor {
 				Builtins::exit(state, args);
 
 			else if (command == "eval")
-				return Builtins::eval(state, args, *parser, output);
+				Builtins::eval(state, args, *parser, output);
 
 			else if (command == "typeof")
 				Builtins::typeof(args, result);
