@@ -206,7 +206,7 @@ To convert another value to an integer use `int` command:
 def SCORE (int 100)
 ```
 
-If the conversion fails or if there is no arguments provided to `int` zero int value will be returned.
+If the conversion fails or if there are no arguments provided to `int` zero int value will be returned.
 
 The result of `typeof` is `int`.
 
@@ -220,7 +220,7 @@ To convert another value to a floating point number use `float` command:
 def PI (float 3.14159)
 ```
 
-If the conversion fails or if there is no arguments provided to `float` zero float value will be returned.
+If the conversion fails or if there are no arguments provided to `float` zero float value will be returned.
 
 The result of `typeof` is `float`.
 
@@ -239,7 +239,7 @@ def prompt { print '$ ' }
 In all cases other than starting Cash in the interaction mode it will be started in the non-interactive mode. The only difference - the prompt will not be executed.
 
 ## Built-in Commands
-Cash interpreter provides a bunch of built-in commands. Some of them are closely connected to Cash core features and others have been added to provide cross-platform support for different features.
+Cash interpreter provides a bunch of built-in commands. Some of them are closely connected to the Cash core features and others have been added to provide cross-platform way to access certain data.
 
 ### General
 - `typeof` - Get the type of a value
