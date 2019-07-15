@@ -113,7 +113,7 @@ def greet {
 
 Unlike `()` operator `{}` can't be clued with string values but commands can still ask code value for it's string representation. This is why is's possible to echo a code value.
 
-When a code value is executed is creates an inner state and additional values can be assigned as arguments with names like: `@1`, `@2`, etc. The overall numbers of arguments is available via variable `@COUNT`.
+When a code value is executed is creates an inner state and additional values can be assigned as arguments with names like: `@1`, `@2`, etc. The overall number of arguments is available via variable `@COUNT`.
 
 ## `exec`
 To execute a code value assigned to a variable use `exec` command. It accepts the name of the variable as the first argument and all the other values are bound as arguments starting with `@1`.
@@ -178,15 +178,27 @@ It's worth mentioning that you will never need to execute code values anonymousl
 
 If a non-code value is stored in a variable passed as first argument to `exec` then this value's string representation is executed.
 
-## Character Escaping
-To prevent Cash from treating a curtain character as an operator this character must be escaped by putting `\` before it. This will instruct interpreter to throw away `\` and treat the next character as raw text.
+## Character Shortcuts, Character Escaping, Operator `\`
+Operator `\` is used for two tasks: providing a convenient way to represent some frequently used characters and escaping other operators.
+
+To represent a line feed character you can type `\n`. To represent a tabulation character use `\t`.
+
+For example,
+```
+echo Hi\nThere!
+```
+prints
+```
+Hi
+There!
+```
+
+Symbols other than the ones defined above are not considered to be character shortcuts and will be _escaped_. Escaping a character means treating it as a raw text even if it is an operator character. Putting `\` before a character instructs Cash interpreter to throw away `\` and treat the next character as raw text.
 
 For example, character escaping may be useful in this case:
 ```
 echo It\'s fun!
 ```
-
-Escaping arbitrary characters with `\` will work the same way: interpreter will throw away `\` and treat them as raw text even if they already are.
 
 ## Disabling Operators
 Operators may be disabled according to the context. When this happens, it means that this operator characters will be treated as raw text without the need to escape them.

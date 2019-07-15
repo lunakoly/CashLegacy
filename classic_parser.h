@@ -22,22 +22,18 @@
 class ClassicParser : public Parser {
 private:
 	/**
-		Moves forward while the current symbol
-		is blank or not the terminator
+		Reads things that start with \
 	*/
-	bool hasSomething(std::istream & input, char terminator) {
-		while (
-			input.peek() == '\n' ||
-			input.peek() == '\r' ||
-			input.peek() == '\t' ||
-			input.peek() == ' '
-		) {
-			if (input.peek() == terminator)
-				return false;
-			input.get();
-		}
+	char readEscapeSequence(std::istream & input) {
+		char next = input.get();
 
-		return input.peek() != EOF && input.peek() != terminator;
+		if (next == 'n')
+			return '\n';
+
+		if (next == 't')
+			return '\t';
+
+		return next;
 	}
 
 	/**
@@ -52,7 +48,7 @@ private:
 		char next = input.get();
 
 		if (next == '\\')
-			token << (char) input.get();
+			token << readEscapeSequence(input);
 		else if (next == '\"')
 			readGrouping(state, input, token, output);
 		else if (next == '\'')
@@ -90,7 +86,7 @@ private:
 			char next = input.get();
 
 			if (next == '\\')
-				token << (char) input.get();
+				token << readEscapeSequence(input);
 			else
 				token << next;
 		}
@@ -179,6 +175,25 @@ private:
 
 		input.get();
 		return std::make_shared<CodeValue>(token.str());
+	}
+
+	/**
+		Moves forward while the current symbol
+		is blank or not the terminator
+	*/
+	bool hasSomething(std::istream & input, char terminator) {
+		while (
+			input.peek() == '\n' ||
+			input.peek() == '\r' ||
+			input.peek() == '\t' ||
+			input.peek() == ' '
+		) {
+			if (input.peek() == terminator)
+				return false;
+			input.get();
+		}
+
+		return input.peek() != EOF && input.peek() != terminator;
 	}
 
 	/**
