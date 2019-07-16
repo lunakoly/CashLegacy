@@ -181,7 +181,15 @@ If a non-code value is stored in a variable passed as first argument to `exec` t
 ## Character Shortcuts, Character Escaping, Operator `\`
 Operator `\` is used for two tasks: providing a convenient way to represent some frequently used characters and escaping other operators.
 
-To represent a line feed character you can type `\n`. To represent a tabulation character use `\t`.
+The available character shortcuts are:
+- `\a` - `07 ASCII` - Bell character
+- `\b` - `08 ASCII` - Backspace character
+- `\e` - `1B ASCII` - Escape character
+- `\f` - `0C ASCII` - Form Feed character
+- `\n` - `0A ASCII` - Line Feed
+- `\r` - `0D ASCII` - Carriage Return character
+- `\t` - `09 ASCII` - Horizontal Tabulation character
+- `\v` - `0B ASCII` - Vertical Tabulation character
 
 For example,
 ```

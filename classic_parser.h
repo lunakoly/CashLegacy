@@ -27,11 +27,29 @@ private:
 	char readEscapeSequence(std::istream & input) {
 		char next = input.get();
 
+		if (next == 'a')
+			return '\a';
+
+		if (next == 'b')
+			return '\b';
+
+		if (next == 'e')
+			return '\e';
+
+		if (next == 'f')
+			return '\f';
+
 		if (next == 'n')
 			return '\n';
 
+		if (next == 'r')
+			return '\r';
+
 		if (next == 't')
 			return '\t';
+
+		if (next == 'v')
+			return '\v';
 
 		return next;
 	}
