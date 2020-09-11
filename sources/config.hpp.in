@@ -1,0 +1,8 @@
+// Copyright (C) 2020 luna_koly
+//
+// This file contains parameters defined via
+// cmake so that we could access them later.
+
+
+#define VERSION_MAJOR @Cash_VERSION_MAJOR@
+#define VERSION_MINOR @Cash_VERSION_MINOR@
