@@ -6,7 +6,7 @@
 #include <iostream>
 #include <iterator>
 
-#include "config.hpp"
+#include "about.hpp"
 #include "terminals/provider.hpp"
 #include "processing/launcher.hpp"
 #include "parsing/parser.hpp"
