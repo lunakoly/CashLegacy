@@ -6,14 +6,6 @@ cmake_minimum_required(VERSION 3.13)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-if (WIN32)
-    set(PLATFORM_SPECIFIC_FILES windows)
-endif (WIN32)
-
-if (UNIX)
-    set(PLATFORM_SPECIFIC_FILES unix)
-endif (UNIX)
-
 project(
     CashProject
         VERSION 1.1

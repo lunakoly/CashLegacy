@@ -92,6 +92,8 @@ int WindowsFeatures::get() {
         return KEY_BACKSPACE;
     } else if (it == RAW_KEY_RETURN) {
         return KEY_RETURN;
+    } else if (it == RAW_KEY_TAB) {
+        return KEY_TAB;
     }
 
     return it;

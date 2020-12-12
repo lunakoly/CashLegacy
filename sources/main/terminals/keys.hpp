@@ -26,6 +26,7 @@
 #endif
 // 27 = '\x1b' = '\033'
 #define RAW_KEY_ESCAPE 27
+#define RAW_KEY_TAB 9
 
 // terminals 'normalize' their input
 // to common symbols or these codes.
@@ -38,3 +39,4 @@
 #define KEY_RIGHT -6
 #define KEY_LEFT -7
 #define KEY_DELETE -8
+#define KEY_TAB -9

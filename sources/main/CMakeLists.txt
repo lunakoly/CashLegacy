@@ -1,6 +1,14 @@
 # Copyright (C) 2020 luna_koly
 
 
+if (WIN32)
+    set(PLATFORM_SPECIFIC_FILES windows)
+endif (WIN32)
+
+if (UNIX)
+    set(PLATFORM_SPECIFIC_FILES unix)
+endif (UNIX)
+
 configure_file(
     "about.hpp.in"
     "about.hpp"
